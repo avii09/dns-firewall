@@ -17,7 +17,7 @@ QUERY_TYPES = [1, 2, 15, 16, 28]  # A, NS, MX, TXT, AAAA
 
 
 # ips like 185.220.100.240, 192.42.116.198, and 72.217.36.105
-def generate_spoofed_ip():
+def generate_mal_ip():
     suspicious_first_octets = [45, 89, 91, 185, 203, 222]  
     first_octet = random.choice(suspicious_first_octets)
 
@@ -63,7 +63,7 @@ def simulate_malicious_flood():
     end_time = time.time() + ATTACK_DURATION
     while time.time() < end_time:
         domain = f"{random.randint(1,99999)}.{random.choice(BLACKLISTED_DOMAINS)}"
-        spoof_ip = generate_spoofed_ip()
+        spoof_ip = generate_mal_ip()
         send_dns_query(domain, spoof_ip=spoof_ip)
         time.sleep(1.0 / MALICIOUS_QUERY_RATE)
 

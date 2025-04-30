@@ -64,7 +64,7 @@ def simulate_ip_traffic(ip_address, is_legit):
         send_dns_query(domain, spoof_ip=ip_address, is_legit=is_legit)
         time.sleep(QUERY_INTERVAL)
 
-    # Instead of printing here, store it
+    
     summary_message = f"[+] IP {ip_address} ({'legitimate' if is_legit else 'malicious'}) sent {num_queries} queries."
     ip_summaries.append(summary_message)
 
@@ -82,7 +82,7 @@ def launch_attack():
     for thread in threads:
         thread.join()
 
-    # after all threads finish print the summaries
+    
     print()
     for summary in ip_summaries:
         print(summary)

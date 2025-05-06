@@ -3,6 +3,8 @@ import random
 import threading
 import time
 import pandas as pd
+from datetime import datetime
+from collections import defaultdict
 
 DNS_SERVER_IP = "127.0.0.1"
 DNS_SERVER_PORT = 53
@@ -26,8 +28,10 @@ MAX_QUERIES = 20
 QUERY_INTERVAL = 0.5
 QUERY_TYPES = [1, 2, 15, 16, 28] # A, NS, MX, TXT, AAAA
 
-# store summaries here
+
 ip_summaries = []
+ip_query_log = defaultdict(list)
+
 
 def generate_random_ip(is_legit=True):
     if is_legit:
@@ -42,17 +46,21 @@ def generate_random_ip(is_legit=True):
         first_octet = random.choice([45, 89, 91, 185, 203, 222])
         return f"{first_octet}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(1,254)}"
 
+
 def send_dns_query(domain, spoof_ip, is_legit):
     qtype = random.choice(QUERY_TYPES)
     ip_layer = IP(dst=DNS_SERVER_IP, src=spoof_ip)
     udp_layer = UDP(dport=DNS_SERVER_PORT, sport=random.randint(1024, 65535))
     dns_layer = DNS(rd=1, qd=DNSQR(qname=domain, qtype=qtype), ar=DNSRROPT(rclass=4096))
     pkt = ip_layer / udp_layer / dns_layer
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     send(pkt, iface=IFACE, verbose=0)
     
-    print(f"[SEND] Domain = {domain}, IP = {spoof_ip}, Qtype = {qtype}, Qname = {dns_layer.qd.qname}, [{'legitimate' if is_legit else 'malicious'}]")
+    print(f"[SEND] Domain = {domain}, IP = {spoof_ip}, Qtype = {qtype}, Qname = {dns_layer.qd.qname}, at [{timestamp}]")
+    return timestamp
 
 def simulate_ip_traffic(ip_address, is_legit):
+    global timestampp
     domain_list = LEGITIMATE_DOMAINS if is_legit else BLACKLISTED_DOMAINS
     num_queries = random.randint(MIN_QUERIES, MAX_QUERIES)
 
@@ -61,12 +69,13 @@ def simulate_ip_traffic(ip_address, is_legit):
         if not is_legit:
             domain = f"{domain}"
         
-        send_dns_query(domain, spoof_ip=ip_address, is_legit=is_legit)
+        timestampp = send_dns_query(domain, spoof_ip=ip_address, is_legit=is_legit)
         time.sleep(QUERY_INTERVAL)
 
-    
-    summary_message = f"[+] IP {ip_address} ({'legitimate' if is_legit else 'malicious'}) sent {num_queries} queries."
+    ip_query_log[ip_address].append(timestampp)
+    summary_message = f"[+] IP {ip_address} sent {num_queries} queries at {ip_query_log[ip_address]}."
     ip_summaries.append(summary_message)
+
 
 def launch_attack():
     threads = []
@@ -88,6 +97,7 @@ def launch_attack():
         print(summary)
     
     print("\n[*] Simulation complete.")
+
 
 if __name__ == "__main__":
     launch_attack()

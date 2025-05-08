@@ -2,6 +2,7 @@ import pandas as pd
 import subprocess
 import time
 
+
 def drop_matched_ips():
     # load matched domains and IPs
     matched_df = pd.read_csv("/home/avii09/Desktop/dns_firewall/dns-firewall/logs/yara_matched.csv")

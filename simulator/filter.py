@@ -6,11 +6,6 @@ import subprocess
 
 
 def rules_match():
-    import pandas as pd
-import yara
-
-
-def rules_match():
     
     logs_df = pd.read_csv("/home/avii09/Desktop/dns_firewall/dns-firewall/logs/rate_limiter_logs.csv")
 

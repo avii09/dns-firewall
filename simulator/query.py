@@ -9,6 +9,11 @@ import csv
 import subprocess 
 import time
 
+from drop_ip import drop_matched_ips
+from filter import rules_match
+from rate_limiter import rate_limit
+
+
 # Store queries here
 query_logs = []
 ip_summaries = []
@@ -20,12 +25,12 @@ DNS_SERVER_PORT = 53
 IFACE = "lo"
 
 # malicious domains from CSV
-csv_path = "/home/bhav/newfirewall/dns-firewall/data/mal_dom.csv"
+csv_path = "/home/avii09/Desktop/dns_firewall/dns-firewall/data/mal_dom.csv"
 df = pd.read_csv(csv_path)
 BLACKLISTED_DOMAINS = df["Domain"].dropna().tolist()
 
 # benign domains from CSV
-csv_path = "/home/bhav/newfirewall/dns-firewall/data/leg_domain.csv"
+csv_path = "/home/avii09/Desktop/dns_firewall/dns-firewall/data/leg_domain.csv"
 df = pd.read_csv(csv_path)
 LEGITIMATE_DOMAINS = df["Domain"].dropna().tolist()
 
@@ -55,7 +60,7 @@ def send_dns_query(domain, spoof_ip, is_legit):
     udp_layer = UDP(dport=DNS_SERVER_PORT, sport=random.randint(1024, 65535))
     dns_layer = DNS(rd=1, qd=DNSQR(qname=domain, qtype=qtype), ar=DNSRROPT(rclass=4096))
     pkt = ip_layer / udp_layer / dns_layer
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    #timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     send(pkt, iface=IFACE, verbose=0)
     
     query_logs.append({
@@ -63,7 +68,6 @@ def send_dns_query(domain, spoof_ip, is_legit):
         "Spoofed_IP": spoof_ip,
         "Query_Type": qtype,
         "Query_Name": dns_layer.qd.qname.decode() if isinstance(dns_layer.qd.qname, bytes) else dns_layer.qd.qname,
-        "Category": "legitimate" if is_legit else "malicious",
         "Timestamp": time.time()
     })
 
@@ -80,7 +84,7 @@ def simulate_ip_traffic(ip_address, is_legit):
         time.sleep(QUERY_INTERVAL)
 
     
-    summary_message = f"[+] IP {ip_address} ({'legitimate' if is_legit else 'malicious'}) sent {num_queries} queries."
+    summary_message = f"[+] IP {ip_address} sent {num_queries} queries."
     ip_summaries.append(summary_message)
     
 def launch_attack():
@@ -100,8 +104,8 @@ def launch_attack():
         thread.join()
 
     # Write logs to a CSV file
-    with open("dns_query_log.csv", "w", newline="") as csvfile:
-        fieldnames = ["Timestamp", "Spoofed_IP", "Domain", "Query_Type", "Query_Name", "Category"]
+    with open("logs/dns_query_log.csv", "w", newline="") as csvfile:
+        fieldnames = ["Timestamp", "Spoofed_IP", "Domain", "Query_Type", "Query_Name"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for entry in query_logs:
@@ -112,14 +116,37 @@ def launch_attack():
 
 
     
-if __name__ == "__main__":
-    launch_attack()
+# if __name__ == "__main__":
+#     launch_attack()
 
-print("[*] Now executing rate_limiter.py...\n")
+# print("[*] Now executing rate_limiter.py...\n")
 
-time.sleep(2)
+# time.sleep(2)
 
-try:
-    result = subprocess.run(["python3", "rate_limiter.py"], check=True)
-except subprocess.CalledProcessError as e:
-    print(f"[ERROR] rate_limiter.py failed with exit code {e.returncode}")
+# try:
+#     rate_limit()
+#     # result = subprocess.run(["python3", "/home/avii09/Desktop/dns_firewall/dns-firewall/simulator/rate_limiter.py"], check=True)
+# except subprocess.CalledProcessError as e:
+#     print(f"[ERROR] rate_limiter.py failed with exit code {e.returncode}")
+
+
+# print("[*] Now executing filter.py...\n")
+
+# time.sleep(2)
+
+# try:
+#     rules_match()
+#     # result = subprocess.run(["python3", "/home/avii09/Desktop/dns_firewall/dns-firewall/simulator/filter.py"], check=True)
+# except subprocess.CalledProcessError as e:
+#     print(f"[ERROR] filter.py failed with exit code {e.returncode}")
+
+
+# print("[*] Now executing drop_ip.py...\n")
+
+# time.sleep(2)
+
+# try:
+#     drop_matched_ips()
+#     # result = subprocess.run(["python3", "/home/avii09/Desktop/dns_firewall/dns-firewall/simulator/filter.py"], check=True)
+# except subprocess.CalledProcessError as e:
+#     print(f"[ERROR] filter.py failed with exit code {e.returncode}")

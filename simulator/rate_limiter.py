@@ -5,7 +5,7 @@ from datetime import datetime
 
 def rate_limit():
     # Load the DNS query log
-    log_file = "/home/avii09/Desktop/dns_firewall/dns-firewall/logs/dns_query_log.csv"
+    log_file = "/mnt/97gb/projects/dns-firewall/logs/dns_query_log.csv"
 
     df = pd.read_csv(log_file)
 
@@ -53,7 +53,7 @@ def rate_limit():
         })
     # Create DataFrame and write to CSV
     output_df = pd.DataFrame(output_logs)
-    output_df.to_csv("logs/rate_limiter_logs.csv", index=False)
+    output_df.to_csv("/mnt/97gb/projects/dns-firewall/logs/rate_limiter_logs.csv", index=False)
 
     print("[*] Sliding window rate limiting complete. Logs saved to rate_limiter_logs.csv.")
 

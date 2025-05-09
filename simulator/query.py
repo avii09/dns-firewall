@@ -25,12 +25,12 @@ DNS_SERVER_PORT = 53
 IFACE = "lo"
 
 # malicious domains from CSV
-csv_path = "/home/avii09/Desktop/dns_firewall/dns-firewall/data/mal_dom.csv"
+csv_path = "/mnt/97gb/projects/dns-firewall/data/mal_dom.csv"
 df = pd.read_csv(csv_path)
 BLACKLISTED_DOMAINS = df["Domain"].dropna().tolist()
 
 # benign domains from CSV
-csv_path = "/home/avii09/Desktop/dns_firewall/dns-firewall/data/leg_domain.csv"
+csv_path = "/mnt/97gb/projects/dns-firewall/data/leg_domain.csv"
 df = pd.read_csv(csv_path)
 LEGITIMATE_DOMAINS = df["Domain"].dropna().tolist()
 
@@ -104,7 +104,7 @@ def launch_attack():
         thread.join()
 
     # Write logs to a CSV file
-    with open("logs/dns_query_log.csv", "w", newline="") as csvfile:
+    with open("/mnt/97gb/projects/dns-firewall/logs/dns_query_log.csv", "w", newline="") as csvfile:
         fieldnames = ["Timestamp", "Spoofed_IP", "Domain", "Query_Type", "Query_Name"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
@@ -125,7 +125,7 @@ def launch_attack():
 
 # try:
 #     rate_limit()
-#     # result = subprocess.run(["python3", "/home/avii09/Desktop/dns_firewall/dns-firewall/simulator/rate_limiter.py"], check=True)
+#     # result = subprocess.run(["python3", "/mnt/97gb/projects/dns-firewall/simulator/rate_limiter.py"], check=True)
 # except subprocess.CalledProcessError as e:
 #     print(f"[ERROR] rate_limiter.py failed with exit code {e.returncode}")
 
@@ -136,7 +136,7 @@ def launch_attack():
 
 # try:
 #     rules_match()
-#     # result = subprocess.run(["python3", "/home/avii09/Desktop/dns_firewall/dns-firewall/simulator/filter.py"], check=True)
+#     # result = subprocess.run(["python3", "/mnt/97gb/projects/dns-firewall/simulator/filter.py"], check=True)
 # except subprocess.CalledProcessError as e:
 #     print(f"[ERROR] filter.py failed with exit code {e.returncode}")
 
@@ -147,6 +147,6 @@ def launch_attack():
 
 # try:
 #     drop_matched_ips()
-#     # result = subprocess.run(["python3", "/home/avii09/Desktop/dns_firewall/dns-firewall/simulator/filter.py"], check=True)
+#     # result = subprocess.run(["python3", "/mnt/97gb/projects/dns-firewall/simulator/filter.py"], check=True)
 # except subprocess.CalledProcessError as e:
 #     print(f"[ERROR] filter.py failed with exit code {e.returncode}")

@@ -10,7 +10,7 @@ def start_raw_attack():
     st.markdown("Click the button below to launch a **Raw DNS Attack** and visualize DNS traffic patterns.")
 
     # Button to trigger the raw DNS attack
-    attack_button = st.button("🚀 Launch Raw DNS Attack")
+    attack_button = st.button("Launch Raw DNS Attack")
     if attack_button:
         with st.spinner('🛑 Attack in progress...'):
             try:
@@ -18,7 +18,7 @@ def start_raw_attack():
                 subprocess.run(["sudo", "python3", "/mnt/97gb/projects/dns-firewall/simulator/raw_attack.py"], check=True)
 
                 # Success message after launching attack
-                st.success("✅ Raw DNS Attack launched successfully!")
+                st.success("Raw DNS Attack launched successfully!")
 
                 # Wait for a while to allow log data to be written
                 time.sleep(5)

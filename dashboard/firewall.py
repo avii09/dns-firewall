@@ -9,7 +9,7 @@ def firewall_tab():
     st.subheader("Firewall Protection")
 
     if st.button("Activate Firewall & Analyze Traffic"):
-        with st.spinner('⚡ Analyzing traffic...'):
+        with st.spinner('Analyzing traffic...'):
             try:
                 result = subprocess.run(
                     ["sudo", "python3", "/mnt/97gb/projects/dns-firewall/simulator/main.py"], check=True
@@ -70,7 +70,7 @@ def firewall_tab():
                         else:
                             st.info("No rate limiting data available.")
 
-                        st.write("### Matched Firewall Rules (Yara):")
+                        st.write("### Logs After Filtering:")
                         if not yara_df.empty:
                             st.dataframe(yara_df)
                         else:

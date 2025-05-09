@@ -45,7 +45,7 @@ def show_comparative_analysis():
         return
     
     # Comparative analysis button to display visualizations
-    compare_button = st.button("🧐 Show Comparative Analysis")
+    compare_button = st.button("Show Comparative Analysis")
 
     if compare_button:
         # Load CSVs
@@ -189,17 +189,17 @@ def show_comparative_analysis():
             ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
             st.pyplot(fig1)
 
-        with col2:
-            # Create a time-based blocking effectiveness chart
-            effectiveness_df = comparison_df.copy()
-            effectiveness_df['Block Rate'] = (effectiveness_df['Blocked'] / 
-                                              effectiveness_df['Before Attack'] * 100).fillna(0)
+        # with col2:
+        #     # Create a time-based blocking effectiveness chart
+        #     effectiveness_df = comparison_df.copy()
+        #     effectiveness_df['Block Rate'] = (effectiveness_df['Blocked'] / 
+        #                                       effectiveness_df['Before Attack'] * 100).fillna(0)
 
-            fig2, ax2 = plt.subplots(figsize=(6, 4))
-            ax2.plot(effectiveness_df['timestamp'], effectiveness_df['Block Rate'], 
-                    color='#9b59b6', lw=2, marker='o', markersize=4)
-            ax2.set_ylim(0, 100)
-            ax2.set_title('Firewall Blocking Effectiveness')
-            ax2.set_xlabel('Time')
-            ax2.set_ylabel('Block Rate (%)')
-            st.pyplot(fig2)
+        #     fig2, ax2 = plt.subplots(figsize=(6, 4))
+        #     ax2.plot(effectiveness_df['timestamp'], effectiveness_df['Block Rate'], 
+        #             color='#9b59b6', lw=2, marker='o', markersize=4)
+        #     ax2.set_ylim(0, 100)
+        #     ax2.set_title('Firewall Blocking Effectiveness')
+        #     ax2.set_xlabel('Time')
+        #     ax2.set_ylabel('Block Rate (%)')
+        #     st.pyplot(fig2)

@@ -1,4 +1,9 @@
 import os
+import sys
+
+# Add the simulator directory to the path to ensure imports work
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from query import launch_attack
 from drop_ip import drop_matched_ips
 from rate_limiter import rate_limit

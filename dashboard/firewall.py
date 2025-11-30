@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
+import os
 from matplotlib.patches import Patch
 
 def display_firewall_results(rate_df, yara_df, blocked_df, allowed_df, dns_df):
@@ -245,7 +246,9 @@ def firewall_tab():
             try:
                 # Use the current Python interpreter (venv) to run the main script
                 venv_python = sys.executable
-                script_path = "/home/alfiyafatima09/Documents/code/major-project/dns-firewall/simulator/main.py"
+                # Get project root directory (parent of dashboard/)
+                PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                script_path = os.path.join(PROJECT_ROOT, "simulator", "main.py")
                 
                 result = subprocess.run(
                     ["sudo", venv_python, script_path], check=True
@@ -257,22 +260,25 @@ def firewall_tab():
 
                     # Load all logs with error handling
                     try:
+                        # Get project root directory (parent of dashboard/)
+                        PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                        
                         # Load dataframes with explicit error handling
                         try:
-                            rate_df = pd.read_csv('/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/rate_limiter_logs.csv')
+                            rate_df = pd.read_csv(os.path.join(PROJECT_ROOT, "logs", "rate_limiter_logs.csv"))
                         except FileNotFoundError:
                             st.warning("Rate limiter logs not found. Using empty dataframe.")
                             rate_df = pd.DataFrame(columns=['Status', 'IP', 'Domain', 'Timestamp', 'Current_Count', 'Threshold'])
                         
                         try:
-                            yara_df = pd.read_csv('/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/yara_matched.csv')
+                            yara_df = pd.read_csv(os.path.join(PROJECT_ROOT, "logs", "yara_matched.csv"))
                         except FileNotFoundError:
                             st.warning("YARA logs not found. Using empty dataframe.")
                             yara_df = pd.DataFrame(columns=['Domain', 'IP', 'Rules', 'Timestamp'])
                         
                         try:
                             # Load the BLOCKED IPs from to_block.csv instead of not_blocked.csv
-                            blocked_df = pd.read_csv('/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/to_block.csv')
+                            blocked_df = pd.read_csv(os.path.join(PROJECT_ROOT, "logs", "to_block.csv"))
                             # Ensure we have an 'IP' column (according to your sample data, it should exist)
                             if 'IP' not in blocked_df.columns:
                                 if 'Spoofed_IP' in blocked_df.columns:
@@ -282,7 +288,7 @@ def firewall_tab():
                             
                             # Load the allowed (not blocked) IPs for comparison
                             try:
-                                allowed_df = pd.read_csv('/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/not_blocked.csv')
+                                allowed_df = pd.read_csv(os.path.join(PROJECT_ROOT, "logs", "not_blocked.csv"))
                             except FileNotFoundError:
                                 allowed_df = pd.DataFrame(columns=['Timestamp', 'Domain', 'IP'])
                                 
@@ -292,7 +298,7 @@ def firewall_tab():
                             allowed_df = pd.DataFrame(columns=['Timestamp', 'Domain', 'IP'])
                         
                         try:
-                            dns_df = pd.read_csv('/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/dns_query_log.csv')
+                            dns_df = pd.read_csv(os.path.join(PROJECT_ROOT, "logs", "dns_query_log.csv"))
                         except FileNotFoundError:
                             st.warning("DNS query logs not found. Using empty dataframe.")
                             dns_df = pd.DataFrame(columns=['Timestamp', 'Spoofed_IP', 'Domain', 'Query_Type', 'Query_Name'])

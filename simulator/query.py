@@ -8,6 +8,7 @@ import pandas as pd
 import csv  
 import subprocess 
 import time
+import os
 
 from drop_ip import drop_matched_ips
 from filter import rules_match
@@ -24,13 +25,16 @@ DNS_SERVER_IP = "127.0.0.1"
 DNS_SERVER_PORT = 53
 IFACE = "lo"
 
+# Get project root directory (parent of simulator/)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # malicious domains from CSV
-csv_path = "/home/alfiyafatima09/Documents/code/major-project/dns-firewall/data/mal_dom.csv"
+csv_path = os.path.join(PROJECT_ROOT, "data", "mal_dom.csv")
 df = pd.read_csv(csv_path)
 BLACKLISTED_DOMAINS = df["Domain"].dropna().tolist()
 
 # benign domains from CSV
-csv_path = "/home/alfiyafatima09/Documents/code/major-project/dns-firewall/data/leg_domain.csv"
+csv_path = os.path.join(PROJECT_ROOT, "data", "leg_domain.csv")
 df = pd.read_csv(csv_path)
 LEGITIMATE_DOMAINS = df["Domain"].dropna().tolist()
 
@@ -104,7 +108,8 @@ def launch_attack():
         thread.join()
 
     # Write logs to a CSV file
-    with open("/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/dns_query_log.csv", "w", newline="") as csvfile:
+    log_path = os.path.join(PROJECT_ROOT, "logs", "dns_query_log.csv")
+    with open(log_path, "w", newline="") as csvfile:
         fieldnames = ["Timestamp", "Spoofed_IP", "Domain", "Query_Type", "Query_Name"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()

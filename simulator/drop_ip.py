@@ -1,24 +1,28 @@
 import pandas as pd
 import subprocess
 import time
+import os
 
 
 def drop_matched_ips():
+    # Get project root directory (parent of simulator/)
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
     # load matched domains and IPs
-    matched_df = pd.read_csv("/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/yara_matched.csv")
+    matched_df = pd.read_csv(os.path.join(PROJECT_ROOT, "logs", "yara_matched.csv"))
     malicious_ips = matched_df["ip"].dropna().unique()
 
     # load rate limiter logs
-    logs_df = pd.read_csv("/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/rate_limiter_logs.csv")
+    logs_df = pd.read_csv(os.path.join(PROJECT_ROOT, "logs", "rate_limiter_logs.csv"))
 
     # filter only the rows where IP is in malicious list
     to_block_df = logs_df[logs_df["IP"].isin(malicious_ips)]
-    to_block_df.to_csv("/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/to_block.csv", index=False)
+    to_block_df.to_csv(os.path.join(PROJECT_ROOT, "logs", "to_block.csv"), index=False)
 
     # filter rows that were NOT blocked
     not_blocked_df = logs_df[~logs_df["IP"].isin(malicious_ips)]
     not_blocked_df = not_blocked_df[["Timestamp", "Domain", "IP"]]
-    not_blocked_df.to_csv("/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/not_blocked.csv", index=False)
+    not_blocked_df.to_csv(os.path.join(PROJECT_ROOT, "logs", "not_blocked.csv"), index=False)
 
     
     for ip in malicious_ips:

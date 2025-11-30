@@ -2,10 +2,14 @@ import pandas as pd
 from collections import defaultdict, deque
 import time
 from datetime import datetime
+import os
 
 def rate_limit():
+    # Get project root directory (parent of simulator/)
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
     # Load the DNS query log
-    log_file = "/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/dns_query_log.csv"
+    log_file = os.path.join(PROJECT_ROOT, "logs", "dns_query_log.csv")
 
     df = pd.read_csv(log_file)
 
@@ -53,7 +57,8 @@ def rate_limit():
         })
     # Create DataFrame and write to CSV
     output_df = pd.DataFrame(output_logs)
-    output_df.to_csv("/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/rate_limiter_logs.csv", index=False)
+    output_path = os.path.join(PROJECT_ROOT, "logs", "rate_limiter_logs.csv")
+    output_df.to_csv(output_path, index=False)
 
     print("[*] Sliding window rate limiting complete. Logs saved to rate_limiter_logs.csv.")
 

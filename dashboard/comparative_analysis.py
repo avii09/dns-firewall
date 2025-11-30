@@ -56,9 +56,12 @@ def show_comparative_analysis():
         'highlight_anomalies': highlight_anomalies
     }
 
+    # Get project root directory (parent of dashboard/)
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
     # File paths
-    before_path = "/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/dns_query_log.csv"
-    after_path = "/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/not_blocked.csv"
+    before_path = os.path.join(PROJECT_ROOT, "logs", "dns_query_log.csv")
+    after_path = os.path.join(PROJECT_ROOT, "logs", "not_blocked.csv")
     
     # Check if files exist before proceeding
     if not os.path.exists(before_path) or not os.path.exists(after_path):

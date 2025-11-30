@@ -27,7 +27,9 @@ def start_raw_attack():
                 # Use the current Python interpreter (venv) to run the attack script
                 # Get the venv Python path
                 venv_python = sys.executable
-                script_path = "/home/alfiyafatima09/Documents/code/major-project/dns-firewall/simulator/raw_attack.py"
+                # Get project root directory (parent of dashboard/)
+                PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                script_path = os.path.join(PROJECT_ROOT, "simulator", "raw_attack.py")
                 
                 # Run the attack script with venv Python (sudo may still be needed for network operations)
                 subprocess.run(["sudo", venv_python, script_path], check=True)
@@ -40,7 +42,8 @@ def start_raw_attack():
 
                 try:
                     # Read DNS query log file
-                    df = pd.read_csv('/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/dns_query_log.csv')
+                    log_path = os.path.join(PROJECT_ROOT, "logs", "dns_query_log.csv")
+                    df = pd.read_csv(log_path)
                     
                     # Convert timestamp to datetime for better plotting
                     df['timestamp'] = pd.to_datetime(df['Timestamp'], unit='s')

@@ -6,15 +6,17 @@ import subprocess
 
 
 def rules_match():
+    # Get project root directory (parent of simulator/)
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    logs_df = pd.read_csv("/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/rate_limiter_logs.csv")
+    logs_df = pd.read_csv(os.path.join(PROJECT_ROOT, "logs", "rate_limiter_logs.csv"))
 
     # Filter only rows where STATUS == 'OK'
     filtered_df = logs_df[logs_df["Status"] == "OK"].dropna(subset=["Domain", "IP"])
     # print(filtered_df)
 
     
-    rules_path = "/home/alfiyafatima09/Documents/code/major-project/dns-firewall/YARA_RULES/rules.yara"
+    rules_path = os.path.join(PROJECT_ROOT, "YARA_RULES", "rules.yara")
     rules = yara.compile(filepath=rules_path)
 
     
@@ -39,7 +41,8 @@ def rules_match():
 
     
     output_df = pd.DataFrame(matches)
-    output_df.to_csv("/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/yara_matched.csv", index=False)
+    output_path = os.path.join(PROJECT_ROOT, "logs", "yara_matched.csv")
+    output_df.to_csv(output_path, index=False)
 
     print("[*] Rule matching complete. Logs saved to logs/yara_matched.csv.")
 

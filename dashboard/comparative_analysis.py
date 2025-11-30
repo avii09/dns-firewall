@@ -11,6 +11,19 @@ def show_comparative_analysis():
     st.subheader("📊 Comparative Analysis")
     st.markdown("Compare DNS traffic **before attack** and **after firewall filtering**.")
 
+    # Initialize session state for comparative analysis
+    if 'comparative_data' not in st.session_state:
+        st.session_state.comparative_data = None
+    if 'comparative_dfs' not in st.session_state:
+        st.session_state.comparative_dfs = {}
+    if 'comparative_config' not in st.session_state:
+        st.session_state.comparative_config = {
+            'time_interval': '1s',
+            'chart_type': 'Area',
+            'show_blocked': True,
+            'highlight_anomalies': True
+        }
+
     # Add configuration options
     with st.expander("📋 Analysis Configuration", expanded=False):
         col1, col2 = st.columns(2)
@@ -18,26 +31,34 @@ def show_comparative_analysis():
             time_interval = st.selectbox(
                 "Time Grouping",
                 ["1s", "5s", "10s", "30s", "1min"],
-                index=0,
+                index=["1s", "5s", "10s", "30s", "1min"].index(st.session_state.comparative_config['time_interval']) if st.session_state.comparative_config['time_interval'] in ["1s", "5s", "10s", "30s", "1min"] else 0,
                 help="Group data points by time interval"
             )
             
             chart_type = st.selectbox(
                 "Chart Type",
                 ["Line", "Area", "Bar"],
-                index=1,
+                index=["Line", "Area", "Bar"].index(st.session_state.comparative_config['chart_type']) if st.session_state.comparative_config['chart_type'] in ["Line", "Area", "Bar"] else 1,
                 help="Select visualization type"
             )
             
         with col2:
-            show_blocked = st.checkbox("Show Blocked Traffic", value=True, 
+            show_blocked = st.checkbox("Show Blocked Traffic", value=st.session_state.comparative_config['show_blocked'], 
                                       help="Display blocked traffic as a separate series")
-            highlight_anomalies = st.checkbox("Highlight Anomalies", value=True,
+            highlight_anomalies = st.checkbox("Highlight Anomalies", value=st.session_state.comparative_config['highlight_anomalies'],
                                              help="Detect and highlight traffic spikes")
+    
+    # Update session state config
+    st.session_state.comparative_config = {
+        'time_interval': time_interval,
+        'chart_type': chart_type,
+        'show_blocked': show_blocked,
+        'highlight_anomalies': highlight_anomalies
+    }
 
     # File paths
-    before_path = "/mnt/97gb/projects/dns-firewall/logs/dns_query_log.csv"
-    after_path = "/mnt/97gb/projects/dns-firewall/logs/not_blocked.csv"
+    before_path = "/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/dns_query_log.csv"
+    after_path = "/home/alfiyafatima09/Documents/code/major-project/dns-firewall/logs/not_blocked.csv"
     
     # Check if files exist before proceeding
     if not os.path.exists(before_path) or not os.path.exists(after_path):
@@ -47,14 +68,25 @@ def show_comparative_analysis():
     # Comparative analysis button to display visualizations
     compare_button = st.button("Show Comparative Analysis")
 
-    if compare_button:
-        # Load CSVs
-        before_df = pd.read_csv(before_path)
-        after_df = pd.read_csv(after_path)
+    if compare_button or st.session_state.comparative_data:
+        # Load CSVs (only if not in session state or button was clicked)
+        if compare_button or not st.session_state.comparative_data:
+            before_df = pd.read_csv(before_path)
+            after_df = pd.read_csv(after_path)
 
-        # Convert timestamps
-        before_df['timestamp'] = pd.to_datetime(before_df['Timestamp'], unit='s')
-        after_df['timestamp'] = pd.to_datetime(after_df['Timestamp'], unit='s')
+            # Convert timestamps
+            before_df['timestamp'] = pd.to_datetime(before_df['Timestamp'], unit='s')
+            after_df['timestamp'] = pd.to_datetime(after_df['Timestamp'], unit='s')
+
+            # Store in session state
+            st.session_state.comparative_dfs = {
+                'before_df': before_df,
+                'after_df': after_df
+            }
+        else:
+            # Use data from session state
+            before_df = st.session_state.comparative_dfs['before_df']
+            after_df = st.session_state.comparative_dfs['after_df']
 
         # Group by selected time interval
         grouped_before = before_df.groupby(pd.Grouper(key='timestamp', freq=time_interval)).size().reset_index(name='Before Attack')
@@ -66,6 +98,9 @@ def show_comparative_analysis():
         # Calculate blocked traffic
         comparison_df['Blocked'] = comparison_df['Before Attack'] - comparison_df['After Filtering']
         comparison_df['Blocked'] = comparison_df['Blocked'].apply(lambda x: max(0, x))  # Ensure no negative values
+        
+        # Mark that we have data
+        st.session_state.comparative_data = True
 
         # Plot
         fig, ax = plt.subplots(figsize=(12, 6))
